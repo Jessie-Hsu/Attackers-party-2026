@@ -456,6 +456,12 @@ html:has(#atk-cover[open]){overflow:hidden}
 #atk-cover img{display:block;width:auto;height:auto;max-width:90vw;max-height:74vh;max-height:74dvh}
 #atk-cover .paper:after{content:'';position:absolute;bottom:0;right:0;width:9%;aspect-ratio:1;background:linear-gradient(135deg,transparent 45%,#3c342e77 48%,#fffdf3 51%,#d0bfa7 72%,#635b51 100%);clip-path:polygon(100% 0,100% 100%,0 100%)}
 #atk-cover .paper:before{content:'';position:absolute;inset:0;background:linear-gradient(96deg,transparent 15%,#35271688 55%,#fff5d4aa 82%,transparent);opacity:0}
+/* 原海報決定尺寸；其餘照片完整置中，疊放交叉淡化。 */
+#atk-cover .paper img{opacity:0;transition:opacity .85s ease-in-out}
+#atk-cover .paper img:first-child:not(.off),#atk-cover .paper img.current{opacity:1}
+#atk-cover .paper img.slide{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;background:#211e1d}
+#atk-cover .paper:before,#atk-cover .paper:after{z-index:2;pointer-events:none}
+@media(prefers-reduced-motion:reduce){#atk-cover .paper img{transition:none}}
 /* 慢速離場：紙面向外舒展，燈光散開，同時透出底下的活動頁。 */
 #atk-cover.turn{animation:atk-exit 2.4s ease-in-out both;pointer-events:none}
 #atk-cover.turn::backdrop{animation:atk-reveal 2.4s ease-in-out both}
@@ -498,10 +504,27 @@ footer{padding-bottom:76px}
 const d=document.querySelector('#atk-cover'), key='attackers:year-end:1119:opened';
 try {if(sessionStorage.getItem(key)) return;} catch {return;}
 if(!d.showModal)return;
-let opened=false;
+let opened=false, timer;
+const paper=d.querySelector('.paper'), slides=[paper.querySelector('img')];
+let current=0;
+// 檔名區分小寫 o 與數字 0；照片與 index.html 放在同一層。
+for(const src of ['o1.jpg','01.jpg','o0.jpg','00.jpg']){
+ const img=new Image(); img.className='slide'; img.alt='';
+ paper.append(img); slides.push(img); img.src='./'+src;
+}
+function advance(){
+ if(document.hidden || opened)return;
+ for(let step=1;step<slides.length;step++){
+   const next=(current+step)%slides.length, img=slides[next];
+   if(!img.complete || !img.naturalWidth)continue;
+   slides[current].classList.remove('current');
+   slides[0].classList.toggle('off',next!==0);
+   img.classList.add('current');current=next;break;
+ }
+}
 function finish(){if(d.open)d.close();}
 function enter(animated){
- if(opened)return; opened=true;
+ if(opened)return; opened=true; clearInterval(timer);
  if(animated)window.dispatchEvent(new Event('atk-open-music'));
  // 先記錄，避免連點或動畫中途重新整理造成重播。
  try{sessionStorage.setItem(key,'1')}catch{}
@@ -514,6 +537,7 @@ d.querySelector('.paper').onclick=d.querySelector('.open').onclick=()=>enter(tru
 d.querySelector('.skip').onclick=()=>enter(false);
 d.oncancel=e=>{e.preventDefault();enter(false)};
 d.showModal();
+timer=setInterval(advance,3000);
 })();
 </script>
 <!-- 頂端導覽：href="#details"、href="#rsvp" 對應下方相同 id。 -->
