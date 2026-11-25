@@ -1,0 +1,716 @@
+<!doctype html>
+<!--
+【閱讀地圖：這份檔案可直接作為 GitHub Pages 的 index.html】
+01 head：分頁標題、手機顯示設定與搜尋摘要。
+02 style：配色、字體、版面、按鈕及手機版樣式。
+03 body：導覽列、封面、活動亮點、時間地點、報名區與頁尾。
+04 script：其他球隊欄位、費用計算、送出狀態及活動倒數。
+
+【自己改色時先搜尋】
+:root → 四個主要色彩變數；不是所有顏色都使用變數。
+其餘固定色碼已在 CSS 開頭列出，修改時可一起檢查。
+
+【自己改內容時留意】
+可改標籤之間的文案、照片 src、CSS 數值。
+name="entry.數字" 是 Google 題目代碼，不是畫面文字。
+id 會被 JavaScript 及頁內連結使用，若改名須同步修改引用。
+Google 選擇題的 value 須對應後台選項，不能只改網頁就新增有效選項。
+這次只整理排版與加入註解，保留原有文案、圖片、色碼與互動程式。
+-->
+
+<html lang="en">
+<!-- 01｜網頁設定：charset 為 UTF-8；viewport 讓手機按裝置寬度呈現。 -->
+<head><script>(()=>{
+ const choice=new URLSearchParams(location.search).get('lang');
+ const manual=choice==='en'||choice==='zh';
+ if(manual){try{localStorage.setItem('attackers-party-language',choice)}catch{}}
+ if(document.documentElement.lang==='en')return;
+ let saved;
+ try{saved=localStorage.getItem('attackers-party-language')}catch{}
+ const preferred=(navigator.languages?.[0]||navigator.language||'zh').toLowerCase();
+ const lang=manual?choice:(saved==='en'||saved==='zh'?saved:(preferred.split('-')[0]==='zh'?'zh':'en'));
+ if(lang==='en')location.replace('./index-en.html'+location.search+location.hash);
+})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- 搜尋摘要；更換活動名稱或日期時可同步更新。 -->
+<meta name="description" content="Join Attackers FC for a year-end celebration with the whole family on December 27, 2026.">
+<!-- 瀏覽器分頁標題，非首頁大標。 -->
+<title>Year-End Party | Attackers FC</title>
+<!-- 俱樂部瀏覽器分頁圖示：圖示使用 assets/club-logo.webp。 -->
+<link rel="icon" type="image/webp" href="assets/club-logo.webp"><style>
+/* 【色彩修改補充】除 :root 外，下列固定色也可能需要一併調整：
+   nav #f7f3e9f5（最後兩碼 f5 為透明度）、焦點 #b7782a、照片底色 #16362e、
+   資訊標籤 #e6c18d、分隔線 #ffffff40、輸入框邊框 #b7c5be、
+   輔助字 #52665d、錯誤字 #a12b25，以及 white、#fff。
+   活動提醒的 HTML 行內 style="color:#ddd" 也會覆寫 .hint。
+   CSS 的 .class 對應 class 屬性，#id 對應 id 屬性；後方同等權重規則可覆寫前方。
+*/
+/* 【主要配色】--ink：主要文字、按鈕及Event details底色；--cream：頁面底色與深色區文字；--gold：裝飾線；--line：邊框。 */
+:root {
+  --ink:#F39700;
+  --cream:#f7f3e9;
+  --gold:#d9aa64;
+  --line:#deded1;
+}
+
+/* 全站尺寸計算：padding 與 border 包含在設定寬度內。 */
+* {
+  box-sizing:border-box;
+}
+
+/* 平滑跳轉；scroll-padding-top 避免固定導覽列遮住目標。 */
+html {
+  scroll-behavior:smooth;
+  scroll-padding-top:80px;
+}
+
+/* 全頁預設背景、文字色、字型與行高。 */
+body {
+  margin:0;
+  background:var(--cream);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;
+  line-height:1.8;
+}
+
+/* 置頂導覽列；background 為固定色碼，改 --cream 不會自動更換這裡。 */
+nav {
+  position:sticky;
+  top:0;
+  z-index:3;
+  padding:14px 6vw;
+  background:#f7f3e9f5;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+  gap:16px;
+}
+
+/* 導覽連結文字樣式。 */
+nav a {
+  color:inherit;
+  text-decoration:none;
+  font-size:14px;
+}
+
+/* 左上角俱樂部名稱的粗細與字距。 */
+.brand {
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+/* 鍵盤焦點框；保留清楚的對比，方便鍵盤操作。 */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible {
+  outline:3px solid #b7782a;
+  outline-offset:4px;
+}
+
+/* 封面容器最大寬度與留白。 */
+.hero {
+  max-width:1280px;
+  margin:auto;
+  padding:65px 6vw 0;
+}
+
+/* 英文小標的字級、字距與粗細。 */
+.eyebrow {
+  font-size:12px;
+  letter-spacing:.18em;
+  font-weight:700;
+}
+
+/* 封面大標；clamp(最小值, 隨畫面變化值, 最大值)。 */
+.hero h1 {
+  font-size:clamp(38px,7vw,84px);
+  line-height:1.2;
+  letter-spacing:-.04em;
+  margin:22px 0;
+}
+
+/* 封面說明文字的最大寬度。 */
+.hero p {
+  max-width:540px;
+}
+
+/* 封面文字與日期左右排列。 */
+.hero-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:32px;
+}
+
+/* 日期字級與不換行設定。 */
+.date {
+  font-size:clamp(24px,4vw,40px);
+  white-space:nowrap;
+  line-height:1.4;
+  padding-bottom:24px;
+}
+
+/* 日期下方英文時間。 */
+.date small {
+  display:block;
+  font-size:13px;
+  letter-spacing:.12em;
+}
+
+/* 主照片比例、尺寸與底色；contain 顯示完整照片，cover 會裁切填滿。 */
+.photo {
+  margin-top:36px;
+  width:100%;
+  display:block;
+  aspect-ratio:3/2;
+  object-fit:contain;
+  background:#16362e;
+}
+
+/* 照片下方英文小字。 */
+.caption {
+  font-size:12px;
+  letter-spacing:.1em;
+  padding:8px 0;
+}
+
+/* 共用按鈕外觀；背景使用 --ink，文字固定為白色。 */
+.btn {
+  display:inline-block;
+  padding:13px 25px;
+  background:var(--ink);
+  color:white;
+  border:0;
+  border-radius:3px;
+  text-decoration:none;
+  font:inherit;
+  cursor:pointer;
+}
+
+/* 一般區塊的寬度與上下左右留白。 */
+section {
+  max-width:1100px;
+  margin:auto;
+  padding:70px 6vw;
+}
+
+/* 各區主標題。 */
+h2 {
+  font-size:clamp(28px,4vw,43px);
+  line-height:1.4;
+  margin:12px 0 24px;
+}
+
+/* 活動卡片等次標題。 */
+h3 {
+  font-size:20px;
+}
+
+/* 邀請文字寬度。 */
+.intro {
+  max-width:650px;
+}
+
+/* 三個活動亮點的三欄網格。 */
+.features {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  margin-top:34px;
+}
+
+/* 每個亮點上方金色分隔線。 */
+.feature {
+  border-top:2px solid var(--gold);
+  padding-top:14px;
+}
+
+/* 亮點介紹字級。 */
+.feature p {
+  font-size:14px;
+}
+
+/* Event details深色背景帶。 */
+.band {
+  background:var(--ink);
+  color:var(--cream);
+}
+
+/* 日期地點資訊的雙欄網格；與 HTML 的 details 元素不同。 */
+.details {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+}
+
+/* 資訊段落間距。 */
+.details p {
+  margin:0 0 18px;
+}
+
+/* Event details英文標籤；此處另有固定金色色碼。 */
+.label {
+  font-size:12px;
+  letter-spacing:.12em;
+  color:#e6c18d;
+}
+#details .details .label { font-size: 15px; }
+
+
+/* 收費資訊上方的半透明白色線。 */
+.fees {
+  border-top:1px solid #ffffff40;
+  padding-top:20px;
+}
+
+/* 各項收費各佔一行。 */
+.fees span {
+  display:block;
+}
+
+/* 報名區左右欄比例與間距。 */
+.rsvp {
+  display:grid;
+  grid-template-columns:.8fr 1.2fr;
+  gap:50px;
+}
+
+/* 報名表白色卡片、邊框、內距與圓角。 */
+.card {
+  background:white;
+  border:1px solid var(--line);
+  padding:30px;
+  border-radius:8px;
+}
+
+/* 表單標籤與群組標題。 */
+label,legend {
+  font-weight:650;
+  display:block;
+  margin:0 0 8px;
+}
+
+/* 輸入框和下拉選單；邊框與白底為固定色碼。 */
+input,select {
+  width:100%;
+  font:inherit;
+  border:1px solid #b7c5be;
+  background:#fff;
+  border-radius:4px;
+  padding:12px;
+  color:var(--ink);
+  margin-bottom:22px;
+}
+
+/* 移除瀏覽器預設群組邊框。 */
+fieldset {
+  padding:0;
+  border:0;
+  margin:0;
+}
+
+/* 輔助說明；深色區另有行內 style 覆寫文字色。 */
+.hint {
+  font-size:13px;
+  color:#52665d;
+}
+
+/* 費用摘要方塊，使用 --cream 背景。 */
+.summary {
+  padding:18px;
+  background:var(--cream);
+  margin:0 0 20px;
+}
+
+/* 估計金額的字級與粗細。 */
+.amount {
+  font-size:30px;
+  font-weight:750;
+}
+
+/* 報名按鈕滿版寬度。 */
+.card .btn {
+  width:100%;
+}
+
+/* 送出回應區的上方間距。 */
+.response {
+  margin-top:24px;
+}
+
+/* Google 回應視窗高度、邊框與白底。 */
+.response iframe {
+  width:100%;
+  height:440px;
+  border:1px solid var(--line);
+  background:white;
+}
+
+/* 未送出前隱藏回應區。 */
+.response[hidden] {
+  display:none;
+}
+
+/* 錯誤訊息樣式；目前 JavaScript 未寫入此區。 */
+.error {
+  color:#a12b25;
+  font-weight:700;
+}
+
+/* 頁尾文字與分隔線。 */
+footer {
+  padding:30px 6vw;
+  text-align:center;
+  font-size:12px;
+  border-top:1px solid var(--line);
+}
+
+/* 其他連結繼承所在區域文字色。 */
+a {
+  color:inherit;
+}
+
+/* HTML 摺疊元件樣式；目前頁面未使用此元件。 */
+details {
+  margin-top:24px;
+}
+
+/* HTML 摺疊標題的滑鼠樣式；與 .summary 費用摘要不同。 */
+summary {
+  cursor:pointer;
+}
+
+/* 倒數文字及左側裝飾線。 */
+#countdown {
+  font-size:22px;
+  border-left:3px solid var(--gold);
+  padding-left:18px;
+  margin:26px 0;
+}
+
+/* 【手機版】畫面寬度不超過 720px 時生效，覆寫上面的桌機設定。 */
+@media(max-width:720px) {
+.hero {
+  padding-top:36px;
+}
+
+.hero-top {
+  display:block;
+}
+
+.date {
+  padding-top:12px;
+}
+
+.features,.details,.rsvp {
+  grid-template-columns:1fr;
+}
+
+.rsvp {
+  gap:20px;
+}
+
+section {
+  padding:45px 6vw;
+}
+
+.card {
+  padding:22px;
+}
+
+nav {
+  font-size:12px;
+}
+
+.brand {
+  font-size:12px;
+}
+
+nav a {
+  font-size:12px;
+}
+
+.photo {
+  margin-top:20px;
+}
+}
+
+/* 尊重使用者減少動畫偏好，取消平滑捲動。 */
+@media(prefers-reduced-motion:reduce) {
+html {
+  scroll-behavior:auto;
+}
+}
+
+/* 【新增：俱樂部識別】Logo 維持原始比例，不裁切；可改 height 控制大小。 */
+.brand { display:inline-flex; align-items:center; gap:10px; }
+.brand-icon { display:block; width:58px; height:44px; object-fit:contain; flex-shrink:0; }
+nav { align-items:center; flex-wrap:wrap; }
+nav > div { margin-left:auto; }
+/* 【新增：頁尾 Logo 與官方 LINE】按鈕文字維持足夠對比。 */
+.footer-icon { display:block; width:112px; height:86px; object-fit:contain; margin:0 auto 16px; }
+.footer-contact { margin:22px 0 0; }
+.footer-contact p { margin:0 0 12px; color:#52665d; font-size:14px; }
+.line-contact { display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  padding:12px 22px; background:#087c3d; color:#fff; border-radius:6px;
+  font-size:15px; font-weight:700; text-decoration:none; }
+.line-contact:hover { background:#066331; }
+.line-contact small { font-size:13px; font-weight:500; }
+@media(max-width:720px) {
+  .brand { gap:7px; letter-spacing:.03em; }
+  .brand-icon { width:44px; height:34px; }
+  nav { gap:8px 12px; }
+}
+</style><style>
+/* 開場海報：尺寸隨可視高度調整，保留完整圖片與下方按鈕。 */
+#atk-cover{border:0;padding:0;background:transparent;color:white;overflow:visible;max-width:96vw}
+#atk-cover::backdrop{background:rgba(25,22,20,.96)}
+html:has(#atk-cover[open]){overflow:hidden}
+#atk-cover .stage{perspective:1200px}
+#atk-cover .paper{display:block;position:relative;overflow:hidden;margin:auto;padding:0;border:0;background:#fff9ee;cursor:pointer;transform-origin:left center;box-shadow:0 16px 44px #0009}
+#atk-cover img{display:block;width:auto;height:auto;max-width:90vw;max-height:74vh;max-height:74dvh}
+#atk-cover .paper:after{content:'';position:absolute;bottom:0;right:0;width:9%;aspect-ratio:1;background:linear-gradient(135deg,transparent 45%,#3c342e77 48%,#fffdf3 51%,#d0bfa7 72%,#635b51 100%);clip-path:polygon(100% 0,100% 100%,0 100%)}
+#atk-cover .paper:before{content:'';position:absolute;inset:0;background:linear-gradient(96deg,transparent 15%,#35271688 55%,#fff5d4aa 82%,transparent);opacity:0}
+/* 慢速離場：紙面向外舒展，燈光散開，同時透出底下的活動頁。 */
+#atk-cover.turn{animation:atk-exit 2.4s ease-in-out both;pointer-events:none}
+#atk-cover.turn::backdrop{animation:atk-reveal 2.4s ease-in-out both}
+#atk-cover.turn .paper{animation:atk-turn 2.4s cubic-bezier(.28,.04,.35,1) both}
+#atk-cover.turn .paper:before{animation:atk-light 2.4s ease-in-out both}
+#atk-cover.turn .controls{transition:opacity .7s ease;opacity:0}
+@keyframes atk-turn{0%{transform:rotateY(0) scale(1)}38%{transform:rotateY(-12deg) rotateZ(-1deg) scale(1.025)}100%{transform:translateX(-5%) rotateY(-54deg) rotateZ(-3deg) scale(1.12)}}
+@keyframes atk-exit{0%,22%{opacity:1}100%{opacity:0}}
+@keyframes atk-reveal{0%,12%{opacity:1}100%{opacity:0}}
+@keyframes atk-light{0%{opacity:0;transform:translateX(25%)}45%{opacity:.85}100%{opacity:0;transform:translateX(-60%)}}
+#atk-cover .controls{display:flex;justify-content:center;align-items:center;gap:1em;margin-top:14px}
+#atk-cover .controls button{border:0;padding:10px 14px;cursor:pointer;font:inherit;border-radius:4px;background:#f6a700;color:#191510}
+#atk-cover .controls .skip{background:transparent;color:white;text-decoration:underline}
+@media(prefers-reduced-motion:reduce){#atk-cover.turn .paper,#atk-cover.turn .paper:before{animation:none}}
+/* 配樂控制：金色按鈕，留在頁面角落 */
+#atk-music{position:fixed;z-index:30;right:12px;bottom:max(12px,env(safe-area-inset-bottom));border:2px solid #171410;border-radius:30px;padding:10px 16px;background:#f6a700;color:#12100d;font:bold 15px/1.4 system-ui;cursor:pointer;box-shadow:0 3px 12px #0003}
+#atk-music:focus-visible{outline:3px solid white;outline-offset:2px}
+footer{padding-bottom:76px}
+/* 主照片輪播：固定原有 3:2 區域，保留整張照片。 */
+#main-photos{position:relative;overflow:hidden}
+#main-photos img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#16362e;opacity:0;transition:opacity .85s ease-in-out}
+#main-photos .active{opacity:1}
+@media(prefers-reduced-motion:reduce){#main-photos img{transition:none}}
+</style><style>
+.lang-switch{display:inline-block;border:1px solid currentColor;border-radius:999px;padding:.3rem .7rem;font-size:.85rem;text-decoration:none}
+#atk-cover .lang-row{text-align:center;margin-top:.65rem}
+#atk-cover .lang-switch{color:#fff}
+</style></head>
+<!-- 03｜可見內容從這裡開始。 -->
+<body><!-- 首次進入本分頁才開啟封面；圖片已內嵌。 -->
+<!-- 配樂已內嵌，音檔已降低音量，無須另外上傳。 -->
+<audio id="atk-audio" preload="none" src="assets/party-music.mp3"></audio>
+<button id="atk-music" type="button">♫ Play music</button>
+<script>
+(()=>{
+ const a=document.getElementById('atk-audio'),b=document.getElementById('atk-music');
+ const sync=()=>{b.textContent=a.paused?'♫ Play music':'♫ Pause music'};
+ const play=()=>{a.play().catch(()=>{b.textContent='♫ Try playing again'})};
+ for(const event of ['play','pause','ended'])a.addEventListener(event,sync);
+ b.onclick=()=>{if(a.paused)play();else a.pause()};
+ window.addEventListener('atk-open-music',play);
+})();
+</script>
+<dialog id="atk-cover" aria-label="Kaohsiung Attackers FC Year-End Party invitation">
+<div class="stage"><button class="paper" type="button" aria-label="Open the invitation and play music"><img fetchpriority="high" alt="Attackers FC Year-End Party poster" src="assets/invitation-cover.webp"></button></div>
+<div class="controls"><button type="button" class="open">♫ Open invitation</button><button type="button" class="skip">Enter without music</button></div><div class="lang-row"><a class="lang-switch" href="./?lang=zh" lang="zh-Hant">繁體中文</a></div></dialog>
+<script>
+(()=>{
+const d=document.querySelector('#atk-cover'), key='attackers:year-end:1119:opened';
+try {if(sessionStorage.getItem(key)) return;} catch {}
+if(!d.showModal)return;
+let opened=false;
+// 翻開／Enter without music後回到活動開頭；備援計時器不能再次拉動頁面。
+function finish(){
+ if(!d.open)return;
+ d.close();
+ if(location.hash==='#rsvp'){
+   try{history.replaceState(history.state,'',location.href.split('#')[0]);}catch{}
+ }
+ const home=document.getElementById('home');
+ if(home)home.focus({preventScroll:true});
+ window.scrollTo({top:0,behavior:'instant'});
+}
+function enter(animated){
+ if(opened)return; opened=true;
+ if(animated)window.dispatchEvent(new Event('atk-open-music'));
+ // 先記錄，避免連點或動畫中途重新整理造成重播。
+ try{sessionStorage.setItem(key,'1')}catch{}
+ if(!animated || matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
+ // 等淡出動畫結束才移除遮罩；備援計時避免動畫被中斷時卡住。
+ d.addEventListener('animationend',e=>{if(e.target===d && e.animationName==='atk-exit')finish();});
+ d.classList.add('turn');setTimeout(finish,2700);
+}
+d.querySelector('.paper').onclick=d.querySelector('.open').onclick=()=>enter(true);
+d.querySelector('.skip').onclick=()=>enter(false);
+d.oncancel=e=>{e.preventDefault();enter(false)};
+d.showModal();
+})();
+</script>
+<!-- 頂端導覽：href="#details"、href="#rsvp" 對應下方相同 id。 -->
+<nav><a class="brand" href="#home"><img class="brand-icon" src="assets/club-logo.webp" alt=""><span>ATTACKERS FC</span></a><div><a href="#details">Event details</a>　<a href="#rsvp">RSVP ↗</a> <a class="lang-switch" href="./?lang=zh" lang="zh-Hant">繁體中文</a></div></nav>
+<main>
+<!-- 封面：英文小標、大標、邀請文字、跳到報名區按鈕及日期。日期更動時也要同步 script 倒數時間。 -->
+<header class="hero" id="home" tabindex="-1"><div class="eyebrow">2026 · Attackers YEAR-END PARTY</div><div class="hero-top"><div><h1>Football brought us together<br>Let’s celebrate together</h1><p>Attackers FC Year-End Party<br>Thank you for showing up and cheering us on all year. Now it’s time for the whole family to celebrate together!</p><a class="btn" href="#rsvp">RSVP here →</a></div><div class="date">2026.12.27<small>SUNDAY / 17:30—20:00</small></div></div>
+<!-- 主照片：src 是完整 base64 圖片資料，長字串不是程式亂碼。可將整個 src 值換成圖片直接網址，或同專案中的相對路徑，例如 party.jpg；不要只刪掉 base64 的一部分。alt 是照片文字描述。 -->
+<div id="main-photos" class="photo"><img class="active" decoding="async" fetchpriority="low" src="assets/team-photo.webp" alt="Club players and families gathered on the pitch">
+<img decoding="async" fetchpriority="low" data-src="o1.jpg" alt="Club event photo 1" aria-hidden="true">
+<img decoding="async" fetchpriority="low" data-src="01.jpg" alt="Club event photo 2" aria-hidden="true">
+<img decoding="async" fetchpriority="low" data-src="o0.jpg" alt="Club event photo 3" aria-hidden="true">
+<img decoding="async" fetchpriority="low" data-src="00.jpg" alt="Club event photo 4" aria-hidden="true"></div><div class="caption">OUR TEAM. OUR FAMILY. OUR MOMENTS.</div></header>
+
+<!-- 邀請與活動亮點：以下 FOOD、MUSIC、PLAY 是三張卡片，可改 h3 與 p 內文。 -->
+<section><div class="eyebrow">MORE THAN FOOTBALL</div><h2>Teammates on the pitch,<br>family off it.</h2><p class="intro">Football brought us together, and your support kept us going. Players, families, and coaches are invited to share a meal, enjoy music and games, and make one more great memory together this year!</p><div class="features"><div class="feature"><div class="eyebrow">01 / FOOD</div><h3>Good food to share</h3><p>Enjoy a buffet and drinks with the club.</p></div><div class="feature"><div class="eyebrow">02 / Year-End Awards</div><h3>Youth Academy Annual Awards</h3><p>Celebrate our standout players and the progress they made this year.</p></div><div class="feature"><div class="eyebrow">03 / PLAY</div><h3>Football games and gift exchange</h3><p>The coaches have football games planned for all ages. Join the optional gift exchange for a few more surprises!</p></div></div></section>
+
+<!-- Event details：時間、地點、截止日期、聯絡電話與費用。電話顯示文字及 tel: 連結須同步。 -->
+<div class="band"><section id="details"><div class="eyebrow">YOUR INVITATION</div><h2>Save the evening for us.</h2><div class="details"><div><div class="label">DATE & TIME</div><p>Sunday, December 27, 2026<br>17:30—20:00</p><div class="label">LOCATION</div><p>No. 8, Gaoxiong Daxue Rd., Nanzih District, Kaohsiung<br>Parking lot</p></div><div><div class="label">RSVP BY</div><p>RSVP by December 13, 2026</p><div class="label">CONTACT</div><p><a href="tel:073618666">07-3618666</a></p></div><div><div class="label">WHAT TO WEAR</div><p>Please wear your full Attackers training kit. If it’s cold, feel free to add warm layers.</p></div><div><div class="label">GIFT EXCHANGE</div><p>Participation is optional. If you’d like to join, please bring one wrapped gift worth NT$300 or less.</p></div></div>
+<!-- 收費文案：改價時，也要改下方人數標籤及 JavaScript 計費公式。 -->
+<div class="fees"><span>Adults: NT$700 / Students (high school or younger): NT$300</span><span>Attackers youth players and children aged 3 or younger attend free.</span></div><p class="hint" style="color:#ddd">Alcohol will be served. If you plan to drink, please arrange a ride. Never drink and drive.</p></section></div>
+
+<!-- 報名區：左側邀請文字與倒數，右側客製表單。 -->
+<section id="rsvp" class="rsvp"><div><div class="eyebrow">COUNT US IN</div><h2>We’d love<br>to see you there.</h2><p>Let us know who’s coming so we can celebrate together.</p>
+<!-- 倒數顯示位置，文字由 JavaScript 寫入。 -->
+<div id="countdown"></div><p class="hint">If registering more than one player from the same family, separate their names with commas. Do not count free players or young children as paying students.</p></div><div>
+<!-- Google 串接：method POST 送出資料，action 是本表單 formResponse 接收網址；target 必須與下方 iframe 的 name 一樣。這不是官方可自由改版的嵌入表單，需實際核對 Google 後台收件。 -->
+<form class="card" id="signup" method="POST" target="google-response" action="https://docs.google.com/forms/d/e/1FAIpQLSfpc6T8CI8tl3C9WdnXEACJ0Po1m9XBXRcP9QP6GIhkZ9PqLQ/formResponse">
+<!-- 欄位 1｜Player name(s) → entry.1140355340。for 與 input id 配對；required 必填，maxlength 限字，placeholder 提示字。 -->
+<label for="player">Player name(s) *</label><input id="player" name="entry.1140355340" required maxlength="200" placeholder="Enter the name(s) of the players attending" autocomplete="off">
+<!-- 家長 Email：name 對應 Google 表單預填連結中的 Email 題目，請保留編號。 -->
+<label for="parent-email">Parent or guardian email *</label>
+<input id="parent-email" name="entry.719171176" type="email" autocomplete="email" required placeholder="e.g. parent@example.com" aria-describedby="parent-email-help">
+<p class="hint" id="parent-email-help">We’ll send your RSVP confirmation and estimated total to this address. Please double-check it.</p>
+<!-- 欄位 2｜球隊 → entry.174137641。未寫 value 的 option 會以顯示文字作為送出值，修改文字也會改變送出值，須與 Google 選項同步。 -->
+<label for="team">Player’s team *</label><select id="team" name="entry.174137641" required>
+<option value="">Select a team</option>
+<option value="先鋒青訓">Attackers Youth Academy</option>
+<option value="先鋒育成">Attackers Development Program</option>
+<option value="以上皆非">Neither of the above</option>
+<option value="__other_option__">Other</option>
+</select>
+<!-- 其他球隊補充：由 JavaScript 控制顯示、必填與 disabled；其他選項的特殊 value 與欄位 name 請保留。 -->
+<div id="other-wrap" hidden><label for="other">Other team name *</label><input id="other" name="entry.174137641.other_option_response" disabled maxlength="200"></div>
+<!-- 人數群組：value 是送到 Google 的資料，option 中間的文字只是顯示標籤。新增 6 位等選項時，Google 後台也須有對應選項。 -->
+<fieldset><legend>Number of guests *</legend>
+<!-- 欄位 3｜付費成人 → entry.298512560，單價 700 元。 -->
+<label for="adults">Paying adults · NT$700 each</label><select id="adults" name="entry.298512560" required>
+<option value="">Select a number (choose 0 if none)</option>
+<option value="0">0</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+<!-- 欄位 4｜付費學生 → entry.2123201776，單價 300 元。 -->
+<label for="students">Paying students · NT$300 each</label><select id="students" name="entry.2123201776" required>
+<option value="">Select a number (choose 0 if none)</option>
+<option value="0">0</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+<!-- 欄位 5｜免費幼兒 → entry.1515498400，不計費。 -->
+<label for="babies">Children aged 3 or younger · Free</label><select id="babies" name="entry.1515498400" required>
+<option value="">Select a number (choose 0 if none)</option>
+<option value="0">0</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select></fieldset>
+<!-- 費用摘要：amount 與 breakdown 由 JavaScript 更新；這些顯示結果沒有 name，因此不會作為獨立題目送到 Google。 -->
+<div class="summary"><div>Estimated total</div><div class="amount" id="amount">NT$0</div><div class="hint" id="breakdown">Please select a number for each category.</div><div class="hint">This total covers paying adults and students only. Submitting this form does not complete payment.</div></div>
+<!-- 預留錯誤訊息位置，目前沒有自訂驗證程式使用它。 -->
+<p id="error" class="error" role="alert"></p>
+<!-- 送出按鈕：type submit 觸發表單送出；id send 供程式修改狀態與文字。 -->
+<button class="btn" type="submit" id="send">Submit RSVP →</button><p class="hint">After submitting, check Google’s response below for confirmation or any errors. We use your information to manage RSVPs and count attendees for this event.</p></form>
+<!-- Google 回應區：送出時顯示；iframe 內容來自 Google，外頁 CSS 無法任意修改其內部樣式。是否成功須看 Google 回應與後台資料，非本頁自行保證。 -->
+<div id="response" class="response" hidden><h3>Check your RSVP</h3><p class="hint">Check the Google confirmation below before submitting again. If it doesn’t appear, contact the club to confirm your RSVP.</p><iframe name="google-response" title="Google Forms submission result" src="about:blank"></iframe></div></div></section></main>
+<!-- 頁尾：俱樂部名稱、活動年份與英文標語。 -->
+<footer>
+<!-- 俱樂部 Logo：圖片已內嵌；名稱在下方文字中提供，避免重複朗讀。 -->
+<img class="footer-icon" src="assets/club-logo.webp" alt="">
+<div>ATTACKERS FC · KAOHSIUNG<br>2026 Year-End Party / We Play For Each Other Not Ourselves</div>
+<!-- 官方 LINE：更換帳號時同步修改 href 與顯示 ID；新分頁開啟。 -->
+<div class="footer-contact">
+  <p>Questions? Contact us on LINE.</p>
+  <a class="line-contact" href="https://line.me/R/ti/p/@873kmbjr?oat_content=url&amp;ts=09221245" target="_blank" rel="noopener noreferrer" aria-label="Contact Attackers FC on LINE, @873kmbjr (opens in a new tab)">
+    <span>Contact us on LINE ↗</span><small>@873kmbjr</small>
+  </a>
+</div>
+</footer>
+<!-- 04｜JavaScript：其他球隊顯示、費用計算、提交狀態、活動倒數。 -->
+<script>
+// 04｜互動程式。以下 id 對應 HTML 的 id，修改其中一端時須同步。
+// 取得報名表、球隊選單、其他球隊輸入框；const 表示這些參照不重新指派。
+const form=document.getElementById('signup'),team=document.getElementById('team'),other=document.getElementById('other');
+
+// 選到「其他」才顯示補充欄位並設必填；disabled 欄位不會隨表單送出。
+// 改選一般球隊時清空補充內容；__other_option__ 是 Google 其他選項的特殊值。
+team.addEventListener('change',()=>{
+  const on=team.value==='__other_option__';
+  document.getElementById('other-wrap').hidden=!on;
+  other.disabled=!on;
+  other.required=on;
+  if(!on)other.value='';
+});
+
+// 【費用計算】a 成人、s 學生、b 幼兒；Number 將選單字串轉成數字。
+// 成人單價 700、學生單價 300：改價時同步更新Event details與欄位標籤。
+// 空選項轉成 0；這只是預估金額，required 仍會在送出時檢查必填。
+function update(){
+  const a=Number(document.getElementById('adults').value),s=Number(document.getElementById('students').value),b=Number(document.getElementById('babies').value);
+  document.getElementById('amount').textContent='NT$'+(a*700+s*300).toLocaleString('en-US');
+  // 反引號字串中的 ${...} 會帶入當前數字。這裡不計免費球員，也不代表家庭總人數。
+  document.getElementById('breakdown').textContent=`Paying adults: ${a} · Paying students: ${s} · Free young children: ${b} (excludes free youth players)`;
+}
+// 表單任一欄位 change 時更新費用；此函式不負責寫入 Google。
+form.addEventListener('change',update);
+
+// 【送出時的介面狀態】顯示回應 iframe，暫停按鈕以減少連點。
+// 沒有 preventDefault，瀏覽器仍會依 form 的 action / method / target 正常提交。
+// 本程式無法藉此判讀跨來源 Google 回應，按鈕文字不是成功收件證明。
+form.addEventListener('submit',()=>{
+  document.getElementById('response').hidden=false;
+  const button=document.getElementById('send');
+  button.disabled=true;
+  button.textContent='Submitted. Check Google’s response below.';
+  // 15000 毫秒 = 15 秒。恢復按鈕不表示送出失敗，重送前先核對是否已收件。
+  setTimeout(()=>{
+    button.disabled=false;
+    button.textContent='Resubmit only if your RSVP wasn’t received';
+  },15000);
+});
+
+// 【活動倒數】+08:00 是台灣時區；86400000 為一天毫秒數，ceil 向上取整。
+// 更改活動日期時間時，同步修改封面與Event details。這裡不是報名截止時間。
+// 每次載入頁面計算一次，不會每秒更新，也不會自動關閉報名。
+const remaining=Math.ceil((new Date('2026-12-27T17:30:00+08:00')-Date.now())/86400000);
+document.getElementById('countdown').textContent=remaining>0?remaining+' '+(remaining===1?'day':'days')+' until the party':'Thank you for being part of our year-end celebration.';
+</script><script>
+// 主照片：翻開後才開始計時，每三秒換一張；讀不到的照片略過。
+(()=>{
+ const photos=[...document.querySelectorAll('#main-photos img')];
+ const cover=document.getElementById('atk-cover');
+ let index=0;
+ function next(){
+   if(document.hidden)return;
+   for(let k=1;k<photos.length;k++){
+     const n=(index+k)%photos.length;
+     if(!photos[n].complete || !photos[n].naturalWidth)continue;
+     photos[index].classList.remove('active');photos[index].setAttribute('aria-hidden','true');
+     photos[n].classList.add('active');photos[n].removeAttribute('aria-hidden');
+     index=n;break;
+   }
+ }
+ const start=()=>{
+   // 開場結束後才下載輪播照片，避免與海報競爭頻寬。
+   for(const photo of photos){if(photo.dataset.src)photo.src=photo.dataset.src;}
+   setInterval(next,3000);
+ };
+ if(cover.open)cover.addEventListener('close',start,{once:true});else start();
+})();
+</script></body></html>
