@@ -20,7 +20,17 @@ Google 選擇題的 value 須對應後台選項，不能只改網頁就新增有
 
 <html lang="zh-Hant">
 <!-- 01｜網頁設定：charset 為 UTF-8；viewport 讓手機按裝置寬度呈現。 -->
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<head><script>(()=>{
+ const choice=new URLSearchParams(location.search).get('lang');
+ const manual=choice==='en'||choice==='zh';
+ if(manual){try{localStorage.setItem('attackers-party-language',choice)}catch{}}
+ if(document.documentElement.lang==='en')return;
+ let saved;
+ try{saved=localStorage.getItem('attackers-party-language')}catch{}
+ const preferred=(navigator.languages?.[0]||navigator.language||'zh').toLowerCase();
+ const lang=manual?choice:(saved==='en'||saved==='zh'?saved:(preferred.split('-')[0]==='zh'?'zh':'en'));
+ if(lang==='en')location.replace('./index-en.html'+location.search+location.hash);
+})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <!-- 搜尋摘要；更換活動名稱或日期時可同步更新。 -->
 <meta name="description" content="先鋒足球俱樂部感恩節派對｜2026年12月27日，邀請全家一起回到球場相聚。">
 <!-- 瀏覽器分頁標題，非首頁大標。 -->
@@ -481,6 +491,10 @@ footer{padding-bottom:76px}
 #main-photos img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#16362e;opacity:0;transition:opacity .85s ease-in-out}
 #main-photos .active{opacity:1}
 @media(prefers-reduced-motion:reduce){#main-photos img{transition:none}}
+</style><style>
+.lang-switch{display:inline-block;border:1px solid currentColor;border-radius:999px;padding:.3rem .7rem;font-size:.85rem;text-decoration:none}
+#atk-cover .lang-row{text-align:center;margin-top:.65rem}
+#atk-cover .lang-switch{color:#fff}
 </style></head>
 <!-- 03｜可見內容從這裡開始。 -->
 <body><!-- 首次進入本分頁才開啟封面；圖片已內嵌。 -->
@@ -499,7 +513,7 @@ footer{padding-bottom:76px}
 </script>
 <dialog id="atk-cover" aria-label="高雄先鋒俱樂部年末派對邀請卡">
 <div class="stage"><button class="paper" type="button" aria-label="翻開邀請卡並播放音樂"><img fetchpriority="high" alt="ATTACKERS YEAR END PARTY 年末派對海報" src="assets/invitation-cover.webp"></button></div>
-<div class="controls"><button type="button" class="open">♫ 翻開邀請卡</button><button type="button" class="skip">無聲進入</button></div></dialog>
+<div class="controls"><button type="button" class="open">♫ 翻開邀請卡</button><button type="button" class="skip">無聲進入</button></div><div class="lang-row"><a class="lang-switch" href="./index-en.html?lang=en" lang="en">English</a></div></dialog>
 <script>
 (()=>{
 const d=document.querySelector('#atk-cover'), key='attackers:year-end:1119:opened';
@@ -534,7 +548,7 @@ d.showModal();
 })();
 </script>
 <!-- 頂端導覽：href="#details"、href="#rsvp" 對應下方相同 id。 -->
-<nav><a class="brand" href="#home"><img class="brand-icon" src="assets/club-logo.webp" alt=""><span>ATTACKERS FC · 先鋒</span></a><div><a href="#details">活動資訊</a>　<a href="#rsvp">出席回覆 ↗</a></div></nav>
+<nav><a class="brand" href="#home"><img class="brand-icon" src="assets/club-logo.webp" alt=""><span>ATTACKERS FC · 先鋒</span></a><div><a href="#details">活動資訊</a>　<a href="#rsvp">出席回覆 ↗</a> <a class="lang-switch" href="./index-en.html?lang=en" lang="en">English</a></div></nav>
 <main>
 <!-- 封面：英文小標、大標、邀請文字、跳到報名區按鈕及日期。日期更動時也要同步 script 倒數時間。 -->
 <header class="hero" id="home" tabindex="-1"><div class="eyebrow">2026 · Attackers YEAR-END PARTY</div><div class="hero-top"><div><h1>足球相遇<br>年末相聚</h1><p>先鋒足球俱樂部・年末派對<br>今年的每一次陪伴、每一聲加油、每一次的道場應援，這一晚，邀請全家一起相聚!</p><a class="btn" href="#rsvp">我們一起來 →</a></div><div class="date">2026.12.27<small>SUNDAY / 17:30—20:00</small></div></div>
